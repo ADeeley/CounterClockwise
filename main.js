@@ -17,8 +17,6 @@ function Game() {
     this.gameLoop = function() {
         knight.draw();
         sword.draw();
-        sword.x--;
-        sword.y++
     }
     this.dead = function() {
     }
@@ -59,7 +57,7 @@ function eventHandler(e) {
             stateHandler.startGame();
         }
     }
-    if (stateHandler.gameLoop) {
+    else if (stateHandler.gameLoop) {
         if (e.keyCode == keys.SPACE) {
             knight.y += 80;
 
@@ -85,17 +83,27 @@ function Knight() {
 
 function Sword() {
     //The sword originates from the centre of the Knight
-    this.length = knight.radius *3;
-    this.x = 0;
-    this.y = 0;
+    this.length = knight.radius * 2;
+    this.x = knight.x + this.length;
+    this.y = knight.y;
+    this.angle = 0.05;
+
+    this.rotateSword = function() {
+        this.x = Math.cos(this.angle) * (this.x - knight.x) - Math.sin(this.angle) * (this.y - knight.y) + knight.x;
+        this.y = Math.sin(this.angle) * (this.x - knight.x) + Math.cos(this.angle) * (this.y - knight.y) + knight.y;
+    }
 
     this.draw = function() {
+        this.rotateSword();
         ctx.beginPath();
         ctx.moveTo(knight.x, knight.y);
-        ctx.lineTo(knight.x + this.x, knight.y + this.y - this.length);
+        ctx.lineTo(this.x, this.y);
         ctx.strokeStyle="#c2c4ae";
         ctx.stroke();
     }
+
+
+
 
 }
    
