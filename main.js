@@ -83,14 +83,19 @@ function Knight() {
 
 function Sword() {
     //The sword originates from the centre of the Knight
-    this.length = knight.radius * 2;
+    this.length = knight.radius * 3;
     this.x = knight.x + this.length;
     this.y = knight.y;
     this.angle = 0.05;
+    this.deltaX = 0;
+    this.deltaY = 0;
 
     this.rotateSword = function() {
-        this.x = Math.cos(this.angle) * (this.x - knight.x) - Math.sin(this.angle) * (this.y - knight.y) + knight.x;
-        this.y = Math.sin(this.angle) * (this.x - knight.x) + Math.cos(this.angle) * (this.y - knight.y) + knight.y;
+        this.deltaX = Math.cos(this.angle) * (this.x - knight.x) - Math.sin(this.angle) * (this.y - knight.y) + knight.x;
+        this.deltaY = Math.sin(this.angle) * (this.x - knight.x) + Math.cos(this.angle) * (this.y - knight.y) + knight.y;
+
+        this.x = this.deltaX;
+        this.y = this.deltaY;
     }
 
     this.draw = function() {
@@ -99,6 +104,7 @@ function Sword() {
         ctx.moveTo(knight.x, knight.y);
         ctx.lineTo(this.x, this.y);
         ctx.strokeStyle="#c2c4ae";
+        ctx.lineWidth = 10;
         ctx.stroke();
     }
 
