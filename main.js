@@ -59,7 +59,7 @@ function eventHandler(e) {
     }
     else if (stateHandler.gameLoop) {
         if (e.keyCode == keys.SPACE) {
-            knight.y += 80;
+            knight.move();
 
         }
 
@@ -78,6 +78,20 @@ function Knight() {
         ctx.fillStyle = this.colour;
         ctx.fill();
         ctx.closePath();
+    }
+    this.move = function() {
+        /*
+        var tempX = this.x;
+        var tempY = this.y;
+        this.x = sword.x;
+        this.y = sword.y;
+        sword.move(tempX * 2, (tempY - this.y) * 2 );
+        */
+        var deltaX = sword.x - this.x;
+        var deltaY = sword.y - this.y;
+        this.x += deltaX;
+        this.y += deltaY;
+        sword.move(deltaX, deltaY);
     }
 }
 
@@ -107,12 +121,11 @@ function Sword() {
         ctx.lineWidth = 10;
         ctx.stroke();
     }
-
-
-
-
+    this.move = function(x, y) {
+        this.x += x;
+        this.y += y;
+    }
 }
-   
 
 var game         = new Game();
 var stateHandler = new StateHandler();
