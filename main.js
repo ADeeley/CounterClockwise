@@ -17,6 +17,8 @@ function Game() {
     this.gameLoop = function() {
         knight.draw();
         sword.draw();
+        enemy.draw();
+        enemy.move(); 
     }
     this.dead = function() {
     }
@@ -92,12 +94,12 @@ function Knight() {
         this.x += deltaX;
         this.y += deltaY;
         sword.move(deltaX, deltaY);
-    }
+    } 
 }
 
 function Sword() {
     //The sword originates from the centre of the Knight
-    this.length = knight.radius * 3;
+    this.length = knight.radius * 4;
     this.x = knight.x + this.length;
     this.y = knight.y;
     this.angle = 0.05;
@@ -127,10 +129,45 @@ function Sword() {
     }
 }
 
+function Enemy() {
+    this.x = Math.floor(Math.random() * 800);
+    this.y = Math.floor(Math.random() * 600);
+    this.radius = 20;
+    this.colour = "#992738";
+
+    this.draw = function() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+        ctx.fillStyle = this.colour;
+        ctx.fill();
+        ctx.closePath()
+    }
+    
+    this.move = function() {
+        //Add Brownian style motion to the enemy
+        var negativeChance = 1;
+        if (Math.random() > 0.5) {
+            negativeChance = -1;
+        }
+        this.x += Math.floor(Math.random() * 3) * negativeChance;
+        this.y += Math.floor(Math.random() * 3) * negativeChance;
+        // to add boundries in order to stop the enemy drifting off-screen
+    }
+}
+
+
 var game         = new Game();
 var stateHandler = new StateHandler();
 var knight       = new Knight();
 var sword        = new Sword();
+var enemy        = new Enemy();
+
+function enemies() {
+    /**
+     * Keeps an array of living Enemy objects
+     */
+      
+}
 
 
 function draw() {
