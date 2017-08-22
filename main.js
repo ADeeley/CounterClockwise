@@ -17,8 +17,7 @@ function Game() {
     this.gameLoop = function() {
         knight.draw();
         sword.draw();
-        enemy.draw();
-        enemy.move(); 
+        enemies.drawAll();
     }
     this.dead = function() {
     }
@@ -155,19 +154,33 @@ function Enemy() {
     }
 }
 
+function Enemies() {
+    /**
+     * Keeps an array of living Enemy objects
+     */
+    this.numberOfEnemies = 5;
+    this.enemyArr = [];
+    for (i = 0; i < this.numberOfEnemies; i++) {
+        this.enemyArr.push(new Enemy());
+    }
+    
+    this.drawAll = function() {
+        for (i = 0; i < this.numberOfEnemies; i++) {
+            this.enemyArr[i].draw();
+            this.enemyArr[i].move();
+        }
+    }
+
+
+}
+
 
 var game         = new Game();
 var stateHandler = new StateHandler();
 var knight       = new Knight();
 var sword        = new Sword();
-var enemy        = new Enemy();
+var enemies      = new Enemies();
 
-function enemies() {
-    /**
-     * Keeps an array of living Enemy objects
-     */
-      
-}
 
 
 function draw() {
