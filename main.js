@@ -106,8 +106,10 @@ function Sword() {
     this.deltaY = 0;
 
     this.rotateSword = function() {
-        this.deltaX = Math.cos(this.angle) * (this.x - knight.x) - Math.sin(this.angle) * (this.y - knight.y) + knight.x;
-        this.deltaY = Math.sin(this.angle) * (this.x - knight.x) + Math.cos(this.angle) * (this.y - knight.y) + knight.y;
+        this.deltaX = Math.cos(this.angle) * (this.x - knight.x) 
+            - Math.sin(this.angle) * (this.y - knight.y) + knight.x;
+        this.deltaY = Math.sin(this.angle) * (this.x - knight.x)
+            + Math.cos(this.angle) * (this.y - knight.y) + knight.y;
 
         this.x = this.deltaX;
         this.y = this.deltaY;
@@ -148,9 +150,27 @@ function Enemy() {
         if (Math.random() > 0.5) {
             negativeChance = -1;
         }
+
         this.x += Math.floor(Math.random() * 3) * negativeChance;
         this.y += Math.floor(Math.random() * 3) * negativeChance;
+        
         // to add boundries in order to stop the enemy drifting off-screen
+        //Left border
+        if (this.x - this.radius < 0) {
+            this.x += 6;
+        }
+        //Right border
+        if (this.x + this.radius > canvas.width) {
+            this.x -= 6;
+        }
+        //Bottom border
+        if (this.y - this.radius < 0) {
+            this.y += 6;
+        }
+        //Top border
+        if (this.y + this.radius > canvas.height) {
+            this.y -= 6;
+        }
     }
 }
 
@@ -158,7 +178,7 @@ function Enemies() {
     /**
      * Keeps an array of living Enemy objects
      */
-    this.numberOfEnemies = 5;
+    this.numberOfEnemies = 10;
     this.enemyArr = [];
     for (i = 0; i < this.numberOfEnemies; i++) {
         this.enemyArr.push(new Enemy());
@@ -170,8 +190,6 @@ function Enemies() {
             this.enemyArr[i].move();
         }
     }
-
-
 }
 
 
