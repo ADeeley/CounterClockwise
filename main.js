@@ -35,6 +35,8 @@ function StateHandler() {
         this.startScreen = true;
         this.gameLoop    = false;
         this.dead        = false;
+        //Reset all class instances to default
+        setup();        
     }
 
     this.startGame = function() {
@@ -70,7 +72,6 @@ function eventHandler(e) {
     else if (stateHandler.deathSequence) {
         if (e.keyCode == keys.SPACE) {
             stateHandler.returnToStartScreen();
-
         }
     }
 }
@@ -233,13 +234,19 @@ var collider = {
     }
 }
 
-var game         = new Game();
-var stateHandler = new StateHandler();
-var knight       = new Knight();
-var sword        = new Sword();
-var enemies      = new Enemies();
+var game;
+var stateHandler;
+var knight;     
+var sword; 
+var enemies;
 
-
+function setup() {
+    game         = new Game();
+    stateHandler = new StateHandler();
+    knight       = new Knight();
+    sword        = new Sword();
+    enemies      = new Enemies();
+}
 
 function draw() {
     // The main loop - checks the stateHandler and runs the appropriate loop
@@ -257,4 +264,5 @@ function draw() {
 }
 
 // call draw every 10ms
+setup();        
 setInterval(draw, 10);
