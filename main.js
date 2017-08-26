@@ -19,7 +19,10 @@ function Game() {
         sword.draw();
         enemies.drawAll();
     }
-    this.dead = function() {
+    this.deathScreen = function() {
+        ctx.font = "40pt Ariel";
+        ctx.fillStyle = "#c2c4ae";
+        ctx.fillText("You died", canvas.width/4, canvas.height/4);
     }
 }
 
@@ -63,7 +66,12 @@ function eventHandler(e) {
             knight.move();
 
         }
+    }
+    else if (stateHandler.deathSequence) {
+        if (e.keyCode == keys.SPACE) {
+            stateHandler.returnToStartScreen();
 
+        }
     }
 }
 
@@ -183,15 +191,47 @@ function Enemies() {
     for (i = 0; i < this.numberOfEnemies; i++) {
         this.enemyArr.push(new Enemy());
     }
-    
+
+    this.detectCollisions = function() {
+        for (i = 0; i < this.numberOfEnemies; i++) {
+            var e = this.enemyArr[i];
+            if (collider.detectCircleCollision(e.x, e.y, e.radius,
+                knight.x, knight.y, knight.radius)) {
+                    stateHandler.deathSequence();
+                }
+        }
+    }
+
     this.drawAll = function() {
         for (i = 0; i < this.numberOfEnemies; i++) {
             this.enemyArr[i].draw();
             this.enemyArr[i].move();
         }
+        this.detectCollisions();
     }
 }
 
+var collider = {
+    /**
+     *  Dictionary of helper functions for collisions
+     */
+    detectCircleCollision : function(ax, ay, aRadius, bx, by, bRadius) {
+        /**
+         * @ax, ay : Circle a's x and y coordinates 
+         * @bx, by : Circle b's x and y coordinates 
+         * @aRadius : 
+         * returns true if the circles, a and b, collide.
+         */
+        var combinedRadii = aRadius + bRadius;
+        if (Math.abs(ax - bx) < combinedRadii
+            && Math.abs(ay - by) < combinedRadii) {
+                return true;
+            }
+        else {
+            return false;
+        }
+    }
+}
 
 var game         = new Game();
 var stateHandler = new StateHandler();
