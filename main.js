@@ -222,13 +222,12 @@ function Enemy() {
     }
 }
 
-function Enemies() {
+function Enemies(n) {
     /**
      * Keeps an array of living Enemy objects
      */
-    this.numberOfEnemies = 10;
     this.enemyArr = [];
-    for (i = 0; i < this.numberOfEnemies; i++) {
+    for (i = 0; i < n; i++) {
         this.enemyArr.push(new Enemy());
     }
 
@@ -243,6 +242,8 @@ function Enemies() {
     }
 
     this.detectBulletEnemyCollisions = function() {
+        //Keep a track of the bullet indicies to splice from the array
+        var deadBullets = [];
         for (i = 0; i < bullets.onScreen.length; i++) {
             var b = bullets.onScreen[i];
             for (j = 0; j < this.enemyArr.length; j++) {
@@ -251,10 +252,14 @@ function Enemies() {
                     b.x, b.y, b.radius)) {
                         //Remove the enemy
                         this.enemyArr.splice(j, 1);
-                        numberOfEnemies--;
+                        deadBullets.push(i);
                         break;
                     }
             }
+        }
+        //Remove the bullets that hit an enemy
+        for (i = 0; i < deadBullets.length; i++) {
+            bullets.onScreen.splice(deadBullets[i], 1);
         }
     }
 
@@ -303,7 +308,7 @@ function setup() {
     stateHandler = new StateHandler();
     knight       = new Knight();
     gun          = new Gun();
-    enemies      = new Enemies();
+    enemies      = new Enemies(10);
     bullets      = new Bullets();
 }
 
