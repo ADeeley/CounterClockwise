@@ -176,7 +176,6 @@ function Bullets() {
             this.onScreen[i].draw();
         }
     }
-    
 }
 
 function Enemy() {
@@ -233,8 +232,8 @@ function Enemies() {
         this.enemyArr.push(new Enemy());
     }
 
-    this.detectCollisions = function() {
-        for (i = 0; i < this.numberOfEnemies; i++) {
+    this.detectKnightEnemyCollisions = function() {
+        for (i = 0; i < this.enemyArr.length; i++) {
             var e = this.enemyArr[i];
             if (collider.detectCircleCollision(e.x, e.y, e.radius,
                 knight.x, knight.y, knight.radius)) {
@@ -243,12 +242,30 @@ function Enemies() {
         }
     }
 
+    this.detectBulletEnemyCollisions = function() {
+        for (i = 0; i < bullets.onScreen.length; i++) {
+            var b = bullets.onScreen[i];
+            for (j = 0; j < this.enemyArr.length; j++) {
+                var e = this.enemyArr[j];
+                if (collider.detectCircleCollision(e.x, e.y, e.radius,
+                    b.x, b.y, b.radius)) {
+                        //Remove the enemy
+                        this.enemyArr.splice(j, 1);
+                        numberOfEnemies--;
+                        break;
+                    }
+            }
+        }
+    }
+
     this.drawAll = function() {
-        for (i = 0; i < this.numberOfEnemies; i++) {
+        for (i = 0; i < this.enemyArr.length; i++) {
             this.enemyArr[i].draw();
             this.enemyArr[i].move();
         }
-        this.detectCollisions();
+        this.detectKnightEnemyCollisions();
+        this.detectBulletEnemyCollisions();
+        console.log(this.enemyArr.length +  " " + bullets.onScreen.length);
     }
 }
 
