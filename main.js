@@ -16,8 +16,9 @@ function Game() {
     }
     this.gameLoop = function() {
         knight.draw();
-        sword.draw();
+        gun.draw();
         enemies.drawAll();
+        bullets.drawAll();
     }
     this.deathScreen = function() {
         ctx.font = "40pt Ariel";
@@ -66,6 +67,7 @@ function eventHandler(e) {
     else if (stateHandler.gameLoop) {
         if (e.keyCode == keys.SPACE) {
             knight.move();
+            gun.shoot();
 
         }
     }
@@ -89,28 +91,29 @@ function Knight() {
         ctx.fill();
         ctx.closePath();
     }
+
     this.move = function() {
         /*
         var tempX = this.x;
         var tempY = this.y;
-        this.x = sword.x;
-        this.y = sword.y;
-        sword.move(tempX * 2, (tempY - this.y) * 2 );
+        this.x = gun.x;
+        this.y = gun.y;
+        gun.move(tempX * 2, (tempY - this.y) * 2 );
         */
-        var deltaX = sword.x - this.x;
-        var deltaY = sword.y - this.y;
+        var deltaX = gun.x - this.x;
+        var deltaY = gun.y - this.y;
         this.x += deltaX;
         this.y += deltaY;
-        sword.move(deltaX, deltaY);
+        gun.move(deltaX, deltaY);
     } 
 }
 
-function Sword() {
-    //The sword originates from the centre of the Knight
-    this.length = knight.radius * 4;
-    this.x = knight.x + this.length;
-    this.y = knight.y;
-    this.angle = 0.05;
+function Gun() {
+    //The gun originates from the centre of the Knight
+    this.length = knight.radius * 2;
+    this.x      = knight.x + this.length;
+    this.y      = knight.y;
+    this.angle  = 0.05;
     this.deltaX = 0;
     this.deltaY = 0;
 
@@ -123,7 +126,6 @@ function Sword() {
         this.x = this.deltaX;
         this.y = this.deltaY;
     }
-
     this.draw = function() {
         this.rotateSword();
         ctx.beginPath();
@@ -137,6 +139,44 @@ function Sword() {
         this.x += x;
         this.y += y;
     }
+    this.shoot = function(x, y) {
+        dx = this.x - knight.x;
+        dy = this.y - knight.y;
+        bullets.onScreen.push(new Bullet(this.x, this.y, dx, dy));
+    }
+}
+
+function Bullet(x, y, dx, dy) {
+    /**
+     * @x, y : floats representing the location of the bullet
+     * @dx, dy : floats representing the change in the movement of the bullet
+     */
+    this.speed  = 0.1; 
+    this.x      = x;
+    this.y      = y;
+    this.dx     = dx * this.speed;
+    this.dy     = dy * this.speed;
+    this.radius = 5;
+
+    this.draw = function() {
+        console.log(this.dx + " " + this.dy);
+        ctx.beginPath();
+        ctx.arc(this.x += this.dx, this.y += this.dy, this.radius, 0, Math.PI*2);
+        ctx.fillStyle = this.colour;
+        ctx.fill();
+        ctx.closePath();
+    }
+}
+ 
+function Bullets() {
+    this.onScreen = [];
+
+    this.drawAll = function() {
+        for (i = 0; i < this.onScreen.length; i++) {
+            this.onScreen[i].draw();
+        }
+    }
+    
 }
 
 function Enemy() {
@@ -237,15 +277,17 @@ var collider = {
 var game;
 var stateHandler;
 var knight;     
-var sword; 
+var gun; 
 var enemies;
+var bullets;
 
 function setup() {
     game         = new Game();
     stateHandler = new StateHandler();
     knight       = new Knight();
-    sword        = new Sword();
+    gun          = new Gun();
     enemies      = new Enemies();
+    bullets      = new Bullets();
 }
 
 function draw() {
