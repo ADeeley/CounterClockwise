@@ -8,22 +8,32 @@ var keys = {
 }
 
 function Game() {
+
     this.startScreen = function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = "40pt Ariel";
         ctx.fillStyle = "#c2c4ae";
         ctx.fillText("Counter-Clockwise!", canvas.height/2-140, 100);
     }
+
     this.gameLoop = function() {
         knight.draw();
         gun.draw();
         enemies.drawAll();
         bullets.drawAll();
+        explosions.drawAll();
     }
+
     this.deathScreen = function() {
         ctx.font = "40pt Ariel";
         ctx.fillStyle = "#c2c4ae";
         ctx.fillText("You died", canvas.width/4, canvas.height/4);
+    }
+
+    this.victoryScreen = function() {
+        ctx.font = "40pt Ariel";
+        ctx.fillStyle = "#c2c4ae";
+        ctx.fillText("You Won!", canvas.width/4, canvas.height/4);
     }
 }
 
@@ -31,11 +41,13 @@ function StateHandler() {
     this.startScreen     = true;
     this.gameLoop        = false;
     this.dead            = false;
+    this.victory         = false;
 
     this.returnToStartScreen = function() {
         this.startScreen = true;
         this.gameLoop    = false;
         this.dead        = false;
+        this.victory     = false;
         //Reset all class instances to default
         setup();        
     }
@@ -44,12 +56,21 @@ function StateHandler() {
         this.startScreen = false;
         this.gameLoop    = true;
         this.dead        = false;
+        this.victory     = false;
     }
 
     this.deathSequence = function() {
         this.startScreen = false;
         this.gameLoop    = false;
         this.dead        = true;
+        this.victory     = false;
+    }
+
+    this.victorySequence = function() {
+        this.startScreen = false;
+        this.gameLoop    = false;
+        this.dead        = false;
+        this.victory     = true;
     }
 }
 
@@ -71,7 +92,7 @@ function eventHandler(e) {
 
         }
     }
-    else if (stateHandler.deathSequence) {
+    else if (stateHandler.deathSequence || stateHandler.victorySequence) {
         if (e.keyCode == keys.SPACE) {
             stateHandler.returnToStartScreen();
         }
@@ -159,7 +180,6 @@ function Bullet(x, y, dx, dy) {
     this.radius = 5;
 
     this.draw = function() {
-        console.log(this.dx + " " + this.dy);
         ctx.beginPath();
         ctx.arc(this.x += this.dx, this.y += this.dy, this.radius, 0, Math.PI*2);
         ctx.fillStyle = this.colour;
@@ -250,16 +270,21 @@ function Enemies(n) {
                 var e = this.enemyArr[j];
                 if (collider.detectCircleCollision(e.x, e.y, e.radius,
                     b.x, b.y, b.radius)) {
+
                         //Remove the enemy
                         this.enemyArr.splice(j, 1);
                         deadBullets.push(i);
+                        explosions.addExplosion(e.x, e.y, e.radius);
                         break;
-                    }
+                }
             }
         }
         //Remove the bullets that hit an enemy
         for (i = 0; i < deadBullets.length; i++) {
             bullets.onScreen.splice(deadBullets[i], 1);
+        }
+        if (this.enemyArr.length <= 0) {
+            stateHandler.victorySequence();
         }
     }
 
@@ -270,7 +295,56 @@ function Enemies(n) {
         }
         this.detectKnightEnemyCollisions();
         this.detectBulletEnemyCollisions();
-        console.log(this.enemyArr.length +  " " + bullets.onScreen.length);
+    }
+}
+
+function Explosion(x, y, radius) {
+    this.x            = x;
+    this.y            = y;
+    this.radius       = radius;
+    this.radiusLimit  = radius * 2;
+    this.colour       = "#992738";
+    this.finished     = false;
+
+    this.draw = function() {
+        /**
+         * Increments radius each call until the limit is reached and
+         * the explosion is finished.
+         */
+        console.log("Explosion");
+        if (this.radius < this.radiusLimit) { 
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius++, 0, Math.PI*2);
+            ctx.fillStyle = this.colour;
+            ctx.fill();
+            ctx.closePath()
+        }
+        else {
+            this.finished = true;
+        }
+    }
+}
+
+function Explosions() {
+    this.current = [];
+    
+    this.drawAll = function() {
+        if (this.current.length > 0) {
+            for (i = 0; i < this.current.length; i++) {
+                expl = this.current[i];
+                if (!expl.finished) {
+                    expl.draw();
+                }
+         
+                else {
+                    this.current.splice(i, 1);
+                }
+            }
+        }
+    }
+    this.addExplosion = function(x, y, radius) {
+        this.current.push(new Explosion(x, y, radius));
+        console.log("add explosion");
     }
 }
 
@@ -296,12 +370,14 @@ var collider = {
     }
 }
 
+
 var game;
 var stateHandler;
 var knight;     
 var gun; 
 var enemies;
 var bullets;
+var explosions;
 
 function setup() {
     game         = new Game();
@@ -310,6 +386,7 @@ function setup() {
     gun          = new Gun();
     enemies      = new Enemies(10);
     bullets      = new Bullets();
+    explosions   = new Explosions();
 }
 
 function draw() {
@@ -319,11 +396,13 @@ function draw() {
     }
     else if (stateHandler.gameLoop) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        console.log("here");
         game.gameLoop();
     }
     else if (stateHandler.dead) {
         game.deathScreen();
+    }
+    else if (stateHandler.victory) {
+        game.victoryScreen();
     }
 }
 
