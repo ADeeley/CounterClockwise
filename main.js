@@ -288,7 +288,7 @@ function Enemies(n) {
         for (i = 0; i < deadBullets.length; i++) {
             bullets.onScreen.splice(deadBullets[i], 1);
         }
-        if (this.enemyArr.length <= 0) {
+        if (this.enemyArr.length <= 0 && explosions.current.length <= 0) {
             stateHandler.victorySequence();
         }
     }
