@@ -3,6 +3,11 @@ var ctx = canvas.getContext("2d");
 
 window.addEventListener("keydown", eventHandler, false);
 
+var colours = {
+    ENEMY_RED : "#992738",
+    TEXT_GREY : "#c2c4ae",
+}
+
 var keys = {
     SPACE : 32,
 }
@@ -12,7 +17,7 @@ function Game() {
     this.startScreen = function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = "40pt Ariel";
-        ctx.fillStyle = "#c2c4ae";
+        ctx.fillStyle = colours.TEXT_GREY;
         ctx.fillText("Counter-Clockwise!", canvas.height/2-140, 100);
     }
 
@@ -26,13 +31,13 @@ function Game() {
 
     this.deathScreen = function() {
         ctx.font = "40pt Ariel";
-        ctx.fillStyle = "#c2c4ae";
+        ctx.fillStyle = colours.TEXT_GREY; 
         ctx.fillText("You died", canvas.width/4, canvas.height/4);
     }
 
     this.victoryScreen = function() {
         ctx.font = "40pt Ariel";
-        ctx.fillStyle = "#c2c4ae";
+        ctx.fillStyle = colours.TEXT_GREY;
         ctx.fillText("You Won!", canvas.width/4, canvas.height/4);
     }
 }
@@ -103,7 +108,7 @@ function Knight() {
     this.x      = canvas.width/2;
     this.y      = canvas.height/2;
     this.radius = 20;
-    this.colour = "#c2c4ae";
+    this.colour = colours.TEXT_GREY;
 
     this.draw = function() {
         ctx.beginPath();
@@ -152,7 +157,7 @@ function Gun() {
         ctx.beginPath();
         ctx.moveTo(knight.x, knight.y);
         ctx.lineTo(this.x, this.y);
-        ctx.strokeStyle="#c2c4ae";
+        ctx.strokeStyle = colours.TEXT_GREY;
         ctx.lineWidth = 10;
         ctx.stroke();
     }
@@ -202,7 +207,7 @@ function Enemy() {
     this.x = Math.floor(Math.random() * 800);
     this.y = Math.floor(Math.random() * 600);
     this.radius = 20;
-    this.colour = "#992738";
+    this.colour = colours.ENEMY_RED;
 
     this.draw = function() {
         ctx.beginPath();
@@ -303,8 +308,9 @@ function Explosion(x, y, radius) {
     this.y            = y;
     this.radius       = radius;
     this.radiusLimit  = radius * 2;
-    this.colour       = "#992738";
+    this.colour       = colours.ENEMY_RED;
     this.finished     = false;
+    this.alpha        = 1;
 
     this.draw = function() {
         /**
@@ -314,9 +320,11 @@ function Explosion(x, y, radius) {
         console.log("Explosion");
         if (this.radius < this.radiusLimit) { 
             ctx.beginPath();
+            ctx.globalAlpha = this.alpha -= 0.1;
             ctx.arc(this.x, this.y, this.radius++, 0, Math.PI*2);
             ctx.fillStyle = this.colour;
             ctx.fill();
+            ctx.globalAlpha = 1;
             ctx.closePath()
         }
         else {
