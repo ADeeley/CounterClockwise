@@ -177,12 +177,15 @@ function Bullet(x, y, dx, dy) {
      * @x, y : floats representing the location of the bullet
      * @dx, dy : floats representing the change in the movement of the bullet
      */
-    this.speed  = 0.1; 
-    this.x      = x;
-    this.y      = y;
-    this.dx     = dx * this.speed;
-    this.dy     = dy * this.speed;
-    this.radius = 5;
+    this.speed   = 0.1; 
+    this.x       = x;
+    this.y       = y;
+    this.originX = x;
+    this.originY = y;
+    this.dx      = dx * this.speed;
+    this.dy      = dy * this.speed;
+    this.radius  = 5;
+    this.range   = 200;
 
     this.draw = function() {
         ctx.beginPath();
@@ -196,10 +199,31 @@ function Bullet(x, y, dx, dy) {
 function Bullets() {
     this.onScreen = [];
 
+    this.cullBullets = function() {
+        /**
+         * Deletes a bullet if it has reached it's maximum range.
+         */
+        var bulletsToCull = [];
+        for (i = 0; i < this.onScreen.length; i++) {
+            var b = this.onScreen[i]
+            var distanceFromOrigin = Math.sqrt(Math.pow(Math.abs(b.originX - b.x) + Math.abs(b.originY - b.y), 2));
+
+            //Add the bullet index to the cull-list
+            if (distanceFromOrigin > b.range) {
+                bulletsToCull.push(i);
+            }
+        }
+        //Remove all bullets in the cull-list from the onScreen array
+        for (i = 0; i < bulletsToCull.length; i++) {
+            this.onScreen.splice(bulletsToCull[i], 1);
+        }
+    }
+
     this.drawAll = function() {
         for (i = 0; i < this.onScreen.length; i++) {
             this.onScreen[i].draw();
         }
+        this.cullBullets();
     }
 }
 
@@ -317,7 +341,6 @@ function Explosion(x, y, radius) {
          * Increments radius each call until the limit is reached and
          * the explosion is finished.
          */
-        console.log("Explosion");
         if (this.radius < this.radiusLimit) { 
             ctx.beginPath();
             ctx.globalAlpha = this.alpha -= 0.1;
@@ -352,7 +375,6 @@ function Explosions() {
     }
     this.addExplosion = function(x, y, radius) {
         this.current.push(new Explosion(x, y, radius));
-        console.log("add explosion");
     }
 }
 
