@@ -152,6 +152,7 @@ function Gun() {
         this.x = this.deltaX;
         this.y = this.deltaY;
     }
+
     this.draw = function() {
         this.rotateSword();
         ctx.beginPath();
@@ -161,10 +162,12 @@ function Gun() {
         ctx.lineWidth = 10;
         ctx.stroke();
     }
+    
     this.move = function(x, y) {
         this.x += x;
         this.y += y;
     }
+
     this.shoot = function(x, y) {
         dx = this.x - knight.x;
         dy = this.y - knight.y;
@@ -206,7 +209,9 @@ function Bullets() {
         var bulletsToCull = [];
         for (i = 0; i < this.onScreen.length; i++) {
             var b = this.onScreen[i]
-            var distanceFromOrigin = Math.sqrt(Math.pow(Math.abs(b.originX - b.x) + Math.abs(b.originY - b.y), 2));
+            var xDif = Math.abs(b.originX - b.x);
+            var yDif = Math.abs(b.originY - b.y);
+            var distanceFromOrigin = Math.sqrt(Math.pow(xDif + yDif , 2));
 
             //Add the bullet index to the cull-list
             if (distanceFromOrigin > b.range) {
@@ -228,10 +233,11 @@ function Bullets() {
 }
 
 function Enemy() {
-    this.x = Math.floor(Math.random() * 800);
-    this.y = Math.floor(Math.random() * 600);
+    this.x      = Math.floor(Math.random() * 800);
+    this.y      = Math.floor(Math.random() * 600);
     this.radius = 20;
     this.colour = colours.ENEMY_RED;
+    this.bias   = 0.1;
 
     this.draw = function() {
         ctx.beginPath();
@@ -240,7 +246,29 @@ function Enemy() {
         ctx.fill();
         ctx.closePath()
     }
-    
+
+    this.addPlayerSeekingBias = function() {
+        /**
+         * Adds a movement bias to the enemy so that it seeks the player
+         */
+        //Add bias
+        if (this.x < knight.x) {
+            this.x += this.bias;
+            console.log("Test1");
+        }
+        else if (this.x > knight.x) {
+            this.x -= this.bias;
+            console.log("Test2");
+        }
+        if (this.y < knight.y) {
+            this.y += this.bias;
+            console.log("Test3");
+        }
+        else if (this.y > knight.y) {
+            this.y -= this.bias;
+            console.log("Test4");
+        }
+    }
     this.move = function() {
         //Add Brownian style motion to the enemy
         var negativeChance = 1;
@@ -257,7 +285,7 @@ function Enemy() {
             this.x += 6;
         }
         //Right border
-        if (this.x + this.radius > canvas.width) {
+        else if (this.x + this.radius > canvas.width) {
             this.x -= 6;
         }
         //Bottom border
@@ -265,9 +293,10 @@ function Enemy() {
             this.y += 6;
         }
         //Top border
-        if (this.y + this.radius > canvas.height) {
+        else if (this.y + this.radius > canvas.height) {
             this.y -= 6;
         }
+        this.addPlayerSeekingBias();
     }
 }
 
@@ -410,6 +439,10 @@ var bullets;
 var explosions;
 
 function setup() {
+    /**
+     * Initialises all game objects initially and is used to reset the game
+     * upon death or victory.
+     */
     game         = new Game();
     stateHandler = new StateHandler();
     knight       = new Knight();
